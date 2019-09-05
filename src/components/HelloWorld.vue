@@ -66,22 +66,47 @@
     name: 'HelloWorld',
     data(){
       return{
+        appID:'d0a0f308d27f1a0494583bd6f9f2cd10',
         weatherData:null,
         iconWeatherStatus:'cloudy.svg',
-        cityName:''
+        cityName:'',
+        lat:'',
+        lng:''
       }
     },
     mounted() {
-      axios
-              .get('http://api.openweathermap.org/data/2.5/weather?q=Baghdad&appid=d0a0f308d27f1a0494583bd6f9f2cd10&units=metric')
-              .then(data=>(this.weatherData = data.data))
+      // axios
+      //         .get('http://api.openweathermap.org/data/2.5/weather?q=Baghdad&appid=d0a0f308d27f1a0494583bd6f9f2cd10&units=metric')
+      //         .then(data=>(this.weatherData = data.data))
+
+      this.$getLocation({})
+              .then(coordinates => {
+                this.lat = coordinates.lat;
+                this.lng = coordinates.lng;
+                axios
+                        .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lng+'&units=metric&appid='+this.appID)
+                        .then(data=>(this.weatherData = data.data))
+                        .catch(err=>console.log(err))
+              });
+
+      // axios
+      //         .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lng+'&units=metric&appid=d0a0f308d27f1a0494583bd6f9f2cd10')
+      //         .then(data=>(this.weatherData = data.data))
+      //         .catch(err=>console.log(err))
     },
     methods:{
+
+
       getCityWeather(){
         axios
                 .get('http://api.openweathermap.org/data/2.5/weather?q='+this.cityName+'&appid=d0a0f308d27f1a0494583bd6f9f2cd10&units=metric')
                 .then(data=>(this.weatherData = data.data))
       },
+      // getCityWeatherByGps(){
+      //   axios
+      //           .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lon+'&units=metric')
+      //           .then(data=>(this.weatherData = data.data))
+      // },
       getWeatherStatusIcon(weatherIconCode){
 
         switch (weatherIconCode) {
@@ -90,49 +115,41 @@
             break;
           case "01n":return require('../assets/svgIcons/night.svg');
             break;
-
           // few clouds
           case "02d":return require('../assets/svgIcons/cloudy-day-1.svg');
             break;
           case "02n":return require('../assets/svgIcons/cloudy-night-1.svg');
             break;
-
           // scattered clouds
           case "03d":return require('../assets/svgIcons/cloudy-day-2.svg');
             break;
           case "03n":return require('../assets/svgIcons/cloudy-night-2.svg');
             break;
-
           // broken clouds
           case "04d":return require('../assets/svgIcons/cloudy-day-3.svg');
             break;
           case "04n":return require('../assets/svgIcons/cloudy-night-3.svg');
             break;
-
           // shower rain
           case "09d":return require('../assets/svgIcons/rainy-2.svg');
             break;
           case "09n":return require('../assets/svgIcons/rainy-4.svg');
             break;
-
           // rain
           case "10d":return require('../assets/svgIcons/rainy-1.svg');
             break;
           case "10n":return require('../assets/svgIcons/rainy-7.svg');
             break;
-
           // thunderstorm
           case "11d":return require('../assets/svgIcons/thunder.svg');
             break;
           case "11n":return require('../assets/svgIcons/thunder.svg');
             break;
-
           // snow
           case "13d":return require('../assets/svgIcons/snowy-3.svg');
             break;
           case "13n":return require('../assets/svgIcons/snowy-5.svg');
             break;
-
            // mist
           case "50d":return require('../assets/svgIcons/foggy.svg');
             break;
