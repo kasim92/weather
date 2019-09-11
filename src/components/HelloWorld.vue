@@ -1,17 +1,34 @@
 <template>
   <div class="container mt-3">
 
-    <div class="card shadow-sm p-3 mb-5 bg-white rounded">
+    <div class="card shadow-sm  mb-5 bg-white rounded">
       <div class="card-body">
-        <div class="input-group ">
-          <div class="input-group-prepend">
-            <div class="input-group-text border-0 bg-transparent mr-n5"><i class="iconStyle fa fa-search"></i></div>
+        <div class="form-row d-flex align-items-center justify-content-center">
+          <div class="col-lg-12 mb-3">
+            <div class="input-group ">
+              <div class="input-group-prepend">
+                <div class="input-group-text border-0 bg-transparent mr-n5"><i class="iconStyle fa fa-search"></i></div>
+              </div>
+              <input type="text" class="form-control pl-5 bg-transparent rounded-pill"
+                     placeholder="Enter The City Name"
+                     aria-describedby="inputGroupPrepend"
+                     v-model="cityName"
+                     @keyup.enter="getCityWeatherBySearch"
+                     :disabled="inputDisabled">
+            </div>
           </div>
-          <input type="text" class="form-control pl-5 bg-transparent rounded-pill"
-                 placeholder="Enter The City Name"
-                 aria-describedby="inputGroupPrepend"
-                 v-model="cityName"
-                 @keyup.enter="getCityWeather">
+          <div class="col-md-auto">
+            <div class="form-group">
+              <div class="custom-control custom-radio custom-control-inline">
+                <input @change="getCityWeatherByGps"  type="radio" class="custom-control-input" name="settings" id="gps" checked value="1">
+                <label class="custom-control-label" for="gps">By GPS</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input @change="inputDisabled=false" type="radio" class="custom-control-input" name="settings" id="Search" value="0">
+                <label class="custom-control-label" for="Search">By Search</label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -24,8 +41,8 @@
             <p class="temp ">{{Math.floor(weatherData.main.temp)}}°</p>
           </div>
           <div class="col-lg-2 rounded details-card-color mb-3 ">
-                        <img class="img" :src="getWeatherStatusIcon(weatherData.weather[0].icon)" width="150" height="150" alt="No Image Found">
-                        <h5 class="">{{weatherData.weather[0].description}}</h5>
+              <img class="img" :src="getWeatherStatusIcon(weatherData.weather[0].icon)" width="150" height="150" alt="No Image Found">
+              <h5 class="">{{weatherData.weather[0].description}}</h5>
           </div>
         </div>
 
@@ -71,44 +88,33 @@
         iconWeatherStatus:'cloudy.svg',
         cityName:'',
         lat:'',
-        lng:''
+        lng:'',
+        inputDisabled:false
       }
     },
     mounted() {
-      // axios
-      //         .get('http://api.openweathermap.org/data/2.5/weather?q=Baghdad&appid=d0a0f308d27f1a0494583bd6f9f2cd10&units=metric')
-      //         .then(data=>(this.weatherData = data.data))
-
-      this.$getLocation({})
-              .then(coordinates => {
-                this.lat = coordinates.lat;
-                this.lng = coordinates.lng;
-                axios
-                        .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lng+'&units=metric&appid='+this.appID)
-                        .then(data=>(this.weatherData = data.data))
-                        .catch(err=>console.log(err))
-              });
-
-      // axios
-      //         .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lng+'&units=metric&appid=d0a0f308d27f1a0494583bd6f9f2cd10')
-      //         .then(data=>(this.weatherData = data.data))
-      //         .catch(err=>console.log(err))
+      this.getCityWeatherByGps();
     },
     methods:{
-
-
-      getCityWeather(){
+      getCityWeatherBySearch(){
         axios
-                .get('http://api.openweathermap.org/data/2.5/weather?q='+this.cityName+'&appid=d0a0f308d27f1a0494583bd6f9f2cd10&units=metric')
+                .get('http://api.openweathermap.org/data/2.5/weather?q='+this.cityName+'&appid='+this.appID+'&units=metric')
                 .then(data=>(this.weatherData = data.data))
       },
-      // getCityWeatherByGps(){
-      //   axios
-      //           .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lon+'&units=metric')
-      //           .then(data=>(this.weatherData = data.data))
-      // },
-      getWeatherStatusIcon(weatherIconCode){
+      getCityWeatherByGps(){
+        this.inputDisabled = true;
+        this.$getLocation({})
+                .then(coordinates => {
+                  this.lat = coordinates.lat;
+                  this.lng = coordinates.lng;
+                  axios
+                          .get('http://api.openweathermap.org/data/2.5/weather?lat='+this.lat+'&lon='+this.lng+'&units=metric&appid='+this.appID)
+                          .then(data=>(this.weatherData = data.data))
+                          .catch(err=>console.log(err))
+                });
 
+      },
+      getWeatherStatusIcon(weatherIconCode){
         switch (weatherIconCode) {
           // clear sky
           case "01d":return require('../assets/svgIcons/day.svg');
@@ -151,9 +157,9 @@
           case "13n":return require('../assets/svgIcons/snowy-5.svg');
             break;
            // mist
-          case "50d":return require('../assets/svgIcons/foggy.svg');
+          case "50d":return require('../assets/svgIcons/day.svg');
             break;
-          case "50n":return require('../assets/svgIcons/foggy.svg');
+          case "50n":return require('../assets/svgIcons/night.svg');
             break;
 
           default:return require('../assets/svgIcons/day.svg');
