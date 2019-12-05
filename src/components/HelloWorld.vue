@@ -83,7 +83,7 @@
     name: 'HelloWorld',
     data(){
       return{
-        appID:'d0a0f308d27f1a0494583bd6f9f2cd10',
+        appID:'',
         weatherData:null,
         iconWeatherStatus:'cloudy.svg',
         cityName:'',
